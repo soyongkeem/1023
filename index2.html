@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시제2호</title>
+    <style>
+        body, html {
+            height: 100%;
+            background-color: #E3e3e3;
+            color: rgb(0, 0, 0);
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .canvas {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background-color: #e3e3e3;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .floating-number {
+            position: absolute;
+            font-size: 24px;
+            color: rgb(0, 0, 0);
+            top: 50%;
+            left: 50%;
+        }
+
+        @keyframes float1 {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(50px, -50px); }
+            50% { transform: translate(100px, 50px); }
+            75% { transform: translate(-50px, 100px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .pixel {
+            height: 24px;
+            width: 24px;
+            background-color: #e3e3e3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-size: 12px;
+            text-align: center;
+            word-wrap: break-word;
+            opacity: 0;
+            border: 1px solid white;
+            margin: 5px;
+            transition: transform 0.05s ease-out, background-color 0.3s, opacity 0.5s ease-out;
+        }
+
+        .pixel.active {
+            opacity: 1;
+            transform: scale(1.5); /* 픽셀 크기를 더 키움 */
+        }
+
+        .full-width-image {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+        }
+
+        .next-button {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .next-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 추가된 부분 */
+        .sentence {
+            position: absolute;
+            left: 20px; /* Next 버튼의 좌측에 배치 */
+            bottom: 20px; /* Next 버튼과 같은 높이에 배치 */
+            font-size: 16px;
+            color: #a9a9a9;
+            max-width: 1600px;
+            line-height: 1.5;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="page3" class="container">
+        <div class="canvas"></div>
+        
+        <div id="floatingNumbers">
+            <span class="floating-number" style="animation: float1 5s infinite;">0</span>
+            <span class="floating-number" style="animation: float1 6s infinite;">1</span>
+        </div>
+
+        <!-- 추가된 문장 부분 -->
+        <div class="sentence">나의 아버지가 나의 곁에서 졸 적에 나는 나의 아버지가 되고 또 나는 나의 아버지의 아버지가 되고 그런데도 나의 아버지는 나의 아버지대로 나의 아버지인데 어쩌자고 나는 자꾸 나의 아버지의 아버지의 아버지의...</div>
+
+        <button class="next-button" onclick="location.href='index3.html'">Next</button>
+        <div class="canvas"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const page3 = document.getElementById('page3');
+            const goToFirstButton = document.getElementById('goToFirstButton');
+            const canvasPage3 = document.querySelector('#page3 .canvas');
+            const basePixelHeight = 50;
+
+            const getNeonColor = () => {
+                const neonColors = ['#ffffff', '#ff0000', '#0000ff', '#a9a9a9'];
+                return neonColors[Math.floor(Math.random() * neonColors.length)];
+            };
+
+            const createPixelsForPage3 = () => {
+                const numberOfPixels = Math.floor(window.innerWidth / basePixelHeight) * Math.floor(window.innerHeight / basePixelHeight);
+                for (let i = 0; i < numberOfPixels; i++) {
+                    const pixel = document.createElement('div');
+                    pixel.classList.add('pixel');
+                    canvasPage3.appendChild(pixel);
+                    setTimeout(() => {
+                        pixel.style.opacity = '1';
+                    }, i * 10);
+                }
+
+                canvasPage3.addEventListener('mousemove', (e) => {
+                    const x = Math.floor(e.pageX / basePixelHeight);
+                    const y = Math.floor(e.pageY / basePixelHeight);
+                    const index = y * Math.floor(window.innerWidth / basePixelHeight) + x;
+                    const pixels = canvasPage3.querySelectorAll('.pixel');
+
+                    if (pixels[index]) {
+                        pixels[index].classList.add('active');
+                        pixels[index].style.backgroundColor = getNeonColor();
+
+                        // 픽셀이 더 격하게 움직이도록 빠르게 반응하는 transform 적용
+                        pixels[index].style.transform = `translate(${(e.pageX - x * basePixelHeight) * 2}px, ${(e.pageY - y * basePixelHeight) * 2}px)`;
+                        pixels[index].innerText = '';
+                    }
+                });
+            };
+
+            createPixelsForPage3();
+        });
+    </script>   
+</body>
+</html>

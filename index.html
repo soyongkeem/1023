@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오감도는 세상을 진단하는 도구</title>
+    <style>
+        body, html {
+            height: 100%;
+            background-color: #e3e3e3;
+            color: rgb(0, 0, 0);
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center; /* 텍스트 중앙 정렬 */
+        }
+        canvas {
+            display: block;
+            height: 400px;
+            margin: 0 auto;
+        }
+        .next-button {
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        .next-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="page1" class="container">
+        <h1>오감도는 세상을 진단하는 도구</h1>
+        <p>이상, 1934.7.24. ~ 8.8. 연재</p>
+        <p> 
+        <br>   
+            <span class="highlight">2024년 9월</span>, GIST 연구팀은 그의 시 "오감도"에 물리학을 접목시켜 새로운 해석법을 제시합니다. <br>
+            숫자판을 원기둥으로 변환하고 도넛 형태로 읽었을 때 정상적인 수열로 해석됩니다. <br>
+            도넛 내부는 우리가 사는 세상이고, 표면을 지나는 무수히 많은 선은 내부의 상태를 진단할 수 있는 도구라는 것입니다.<br>
+            <br>
+            버튼을 눌러 오감도를 그려보세요.
+        </p>
+        <!-- 캔버스를 감싸는 div -->
+        <div class="canvas-container">
+            <!-- 캔버스 태그 직접 생성 필요 없음 -->
+        </div>
+        <!-- 버튼을 캔버스 바로 밑에 위치시킴 -->
+        <button class="next-button" onclick="location.href='index1.html'">Start</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // 기본 Three.js 설정
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor('#e3e3e3');
+        renderer.setSize(800, 400); // 캔버스 크기 설정
+        document.querySelector('.canvas-container').appendChild(renderer.domElement); // 캔버스를 DOM에 추가
+
+        // 평면(Plane) 생성
+        const planeGeometry = new THREE.PlaneGeometry(6, 6, 32, 32); // 32x32 분할
+        const material = new THREE.MeshBasicMaterial({ color: '#000000', wireframe: true });
+        const plane = new THREE.Mesh(planeGeometry, material);
+        scene.add(plane);
+
+        // 카메라 위치 설정
+        camera.position.z = 10;
+
+        let time = 0;
+        const duration = 5; // 변형 애니메이션 지속 시간 (초)
+
+        // 애니메이션 설정
+        function animate() {
+            requestAnimationFrame(animate);
+
+            time += 0.0005; // 시간 경과
+            const t = Math.min(time / duration, 1); // 0에서 1로 변하는 진행 비율
+
+            // 평면 정점들을 토러스 형태로 변형하는 작업
+            const positionAttribute = plane.geometry.attributes.position;
+            const radius = 2; // 토러스의 중심 반지름
+            const tubeRadius = 0.8; // 토러스의 튜브 반지름
+
+            for (let i = 0; i < positionAttribute.count; i++) {
+                const x = positionAttribute.getX(i);
+                const y = positionAttribute.getY(i);
+
+                // 평면의 정점에서 원형(토러스) 형태로 변형시키기 위한 각도 계산
+                const theta = Math.atan2(y, x);  // 평면에서 각도 계산
+                const distance = Math.sqrt(x * x + y * y);  // 평면에서의 거리 계산
+
+                // 새로운 토러스 좌표로 이동 (부드럽게 보간)
+                const newX = (radius + tubeRadius * Math.cos(distance * Math.PI)) * Math.cos(theta);
+                const newY = (radius + tubeRadius * Math.cos(distance * Math.PI)) * Math.sin(theta);
+                const newZ = tubeRadius * Math.sin(distance * Math.PI);
+
+                // lerp를 사용해 평면에서 토러스 좌표로 변형
+                const finalX = THREE.MathUtils.lerp(x, newX, t); // x축 변화
+                const finalY = THREE.MathUtils.lerp(y, newY, t); // y축 변화
+                const finalZ = THREE.MathUtils.lerp(0, newZ, t); // z축 변화 (평면의 z는 0에서 출발)
+
+                // 새로운 위치로 정점 설정
+                positionAttribute.setXYZ(i, finalX, finalY, finalZ);
+            }
+
+            positionAttribute.needsUpdate = true;  // 정점 업데이트
+
+            renderer.render(scene, camera);
+        }
+
+        animate();  // 애니메이션 시작
+    </script>
+</body>
+</html>

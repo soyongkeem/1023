@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시제4호</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            height: 100%;
+            background-color: #e3e3e3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 50px);
+            grid-template-rows: repeat(2, 50px);
+            gap: 5px;
+            font-size: 24px;
+            font-family: 'Arial', sans-serif;
+        }
+        .number {
+            color: black;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+        .circle {
+            border-radius: 50%;
+        }
+        .go-to-first-button {
+            font-size: 16px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        .go-to-first-button:hover {
+            background-color: #0056b3;
+        }
+        /* 안내문 스타일 */
+        #movingText {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            color: black;
+            font-size: 16px;
+            animation: moveText 3s infinite;
+            font-family: 'Arial', sans-serif;
+        }
+        @keyframes moveText {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(500px); }
+            100% { transform: translateX(1400px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container" id="grid-container">
+        <div class="number">1</div>
+        <div class="number">2</div>
+        <div class="number">0</div>
+        <div class="number">1</div>
+    </div>
+    <!-- 안내문 추가 -->
+    <p id="movingText">클릭으로 자유롭게 오감도를 그리세요</p>
+    
+    <button class="go-to-first-button" onclick="goToFirstPage()">Go to First</button>
+    <script>
+        let gridSize = 2; // 초기 그리드 크기
+        let totalCells = gridSize * gridSize;
+        const baseSequence = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+
+        function getNumberForPosition(row, col) {
+            // 각 행의 시작 숫자를 결정
+            let rowStartIndex = row % baseSequence.length;
+            // 열 위치에 따라 숫자 결정
+            let finalIndex = (rowStartIndex + col) % baseSequence.length;
+            return baseSequence[finalIndex];
+        }
+
+        function addNewCells(startIndex, endIndex) {
+            const container = document.getElementById('grid-container');
+            const randomCircleIndex = Math.floor(Math.random() * (endIndex - startIndex)); // 랜덤으로 동그라미 박스 하나 설정
+            for (let i = startIndex; i < endIndex; i++) {
+                const numberDiv = document.createElement('div');
+                numberDiv.classList.add('number');
+                const row = Math.floor(i / gridSize);
+                const col = i % gridSize;
+                numberDiv.innerText = getNumberForPosition(row, col);
+                numberDiv.onclick = expandGrid;
+
+                // 랜덤한 하나의 박스를 동그라미로 변경
+                if (i - startIndex === randomCircleIndex) {
+                    numberDiv.classList.add('circle');
+                }
+
+                container.appendChild(numberDiv);
+            }
+        }
+
+        function expandGrid() {
+            const container = document.getElementById('grid-container');
+            gridSize += 2;
+            container.style.gridTemplateColumns = `repeat(${gridSize}, 50px)`;
+            container.style.gridTemplateRows = `repeat(${gridSize}, 50px)`;
+            
+            // 기존 셀들의 내용 업데이트
+            const cells = container.children;
+            for (let i = 0; i < cells.length; i++) {
+                const row = Math.floor(i / gridSize);
+                const col = i % gridSize;
+                cells[i].innerText = getNumberForPosition(row, col);
+            }
+
+            const newTotalCells = gridSize * gridSize;
+            addNewCells(totalCells, newTotalCells);
+            totalCells = newTotalCells;
+        }
+
+        function goToFirstPage() {
+            location.href = 'index.html'; // 첫 페이지로 이동
+        }
+
+        // 초기 숫자 설정
+        const initialCells = document.querySelectorAll('.number');
+        const randomCircleIndex = Math.floor(Math.random() * initialCells.length); // 처음 4개 중 동그라미 하나 설정
+        initialCells.forEach((cell, index) => {
+            const row = Math.floor(index / gridSize);
+            const col = index % gridSize;
+            cell.innerText = getNumberForPosition(row, col);
+            cell.onclick = expandGrid;
+
+            // 랜덤하게 동그라미 스타일 적용
+            if (index === randomCircleIndex) {
+                cell.classList.add('circle');
+            }
+        });
+    </script>
+</body>
+</html>
